@@ -37,6 +37,7 @@ const RegisterScreen = ({ navigation }) => {
     // Simulate API call (replace with actual authentication)
     setTimeout(async () => {
       try {
+        // Registration successful - store user data for demonstration
         const userData = {
           user: {
             id: Date.now(),
@@ -46,24 +47,38 @@ const RegisterScreen = ({ navigation }) => {
           token: 'dummy-token-' + Date.now(),
         };
 
-        // Dispatch login action (auto-login after registration)
-        dispatch(login(userData));
-
-        // Persist auth state
-        await AsyncStorage.setItem('auth', JSON.stringify({
-          isAuthenticated: true,
-          user: userData.user,
-          token: userData.token,
-        }));
+        // Store registration data temporarily (in real app, this would be on server)
+        await AsyncStorage.setItem('registeredUser', JSON.stringify(userData));
 
         setLoading(false);
         
-        // Show success message
-        Alert.alert('Success', 'Account created successfully!');
+        // Navigate to login page (works on all platforms)
+        if (Platform.OS === 'web') {
+          // For web, use alert and navigate
+          alert('Account created successfully! Please login to continue.');
+          navigation.navigate('Login');
+        } else {
+          // For mobile, use Alert.alert
+          Alert.alert(
+            'Success', 
+            'Account created successfully! Please login to continue.',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.navigate('Login')
+              }
+            ]
+          );
+        }
       } catch (error) {
         console.error('Register error:', error);
         setLoading(false);
-        Alert.alert('Error', 'Failed to create account. Please try again.');
+        
+        if (Platform.OS === 'web') {
+          alert('Failed to create account. Please try again.');
+        } else {
+          Alert.alert('Error', 'Failed to create account. Please try again.');
+        }
       }
     }, 1500);
   };
